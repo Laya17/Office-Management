@@ -1,0 +1,73 @@
+.roomCardContainer{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: auto;
+    margin: 20px;
+    background-color: white;
+    
+}
+
+.imageContainer{
+    height: 200px;
+}
+
+
+.roomimg{
+    height: 200px;
+    width: 300px;
+    margin: 0;
+}
+
+.descriptionContainer{
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.NameContainer{
+    display: flex;
+    height: 30px;
+    justify-content: space-between;
+}
+
+.title{
+    font-weight: 600;
+}
+
+.amenitiesContainer{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    height: 30px;
+    margin-bottom: 20px;
+}
+
+.amenities{
+    color: gray;
+}
+
+.availableTimeContainer{
+    
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.timeslot{
+    border-radius: 5px;
+    border: 1px solid gray;
+    color: gray;
+    padding: 5px;
+    margin: 0;
+}
+
+.disabledButton{
+    background-color: black;
+}
+
+.bookslot{
+    width: inherit;
+    height: 50px;
+    background-color: red;
+}

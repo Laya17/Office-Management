@@ -1,0 +1,13 @@
+.roomsPage{
+    display: flex;
+    background-color: beige;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.dateContainer{
+    width: 100px;
+    height: 30px;
+    position: relative;
+    
+}
