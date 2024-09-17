@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  cloneElement,
+  useCallback,
+  useRef,
+} from "react";
 import style from "./RoomCards.module.css";
 import BookingForm from "../BookingForm/BookingForm";
 import { gql, useQuery } from "@apollo/client";
+import { memo } from "react";
 
 const timings = [
   { time: "9:00 AM" },
@@ -16,7 +23,7 @@ const timings = [
   { time: "6:00 PM" },
   { time: "7:00 PM" },
   { time: "8:00 PM" },
-  { time: "9:00 PM" }
+  { time: "9:00 PM" },
 ];
 
 const BOOKINGS_QUERY = gql`
@@ -35,7 +42,6 @@ const BOOKINGS_QUERY = gql`
   }
 `;
 
-
 const parseTime = (timeStr) => {
   const [hourStr, modifier] = timeStr.split(" ");
   let [hour, minute] = hourStr.split(":").map(Number);
@@ -50,36 +56,34 @@ const parseTime = (timeStr) => {
   return new Date().setHours(hour, minute, 0, 0);
 };
 
-export default function RoomCard({ room ,formState, setFormState}) {
+const RoomCard = ({ room, formState, setFormState }) => {
   const [booking, setBooking] = useState("");
   const [form, setForm] = useState(false);
 
-  const [bookedArray, setBookedArray] = useState([])
+  const [bookedArray, setBookedArray] = useState([]);
 
   const { loading, error, data, refetch } = useQuery(BOOKINGS_QUERY, {
-    variables: { date: formState.date, roomId: room.id}, 
+    variables: { date: formState.date, roomId: room.id },
+    onCompleted: (data) => {
+      console.log("ON COMPLETED");
+      setBookedArray(data.bookings);
+    },
   });
 
-  // console.log("DATA: ",bookedArray)
-  console.log("DATA",data)
-
-  useEffect(() => {
-    console.log("SETTING DATA")
-    setBookedArray(data?.bookings)
-  }, [data])
- 
-
-  const handleChange = async () => {
-    console.log("REFETCHING...")
-    const response = await refetch()
-    console.log("RESPONSE REFETCH", response.data.bookings)
-    setBookedArray(response.data.bookings)
-    console.log("REFETCHed...")
-  }
+  const handleChange = useCallback(async () => {
+    console.log("BUTTON CLICK");
+    try {
+      const response = await refetch();
+      console.log("RESPONSE REFETCH", response);
+      setBookedArray(response.data.bookings);
+      console.log("REFETCHed...");
+    } catch (err) {
+      console.error("REFETCH ERROR", err);
+    }
+  }, [refetch]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error fetching data: {error.message}</p>;
-
 
   const isTimeSlotBooked = (timeSlot, roomId) => {
     return bookedArray?.some(
@@ -87,24 +91,28 @@ export default function RoomCard({ room ,formState, setFormState}) {
     );
   };
 
-  const isTimeSlotPast = (timeSlot,date) => {
-    const today=new Date();
+  const isTimeSlotPast = (timeSlot, date) => {
+    const today = new Date();
 
-    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const [year,month,dates]=date.split("-");
-    const dateOnly = new Date(year, month-1, dates);
+    const todayDateOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const [year, month, dates] = date.split("-");
+    const dateOnly = new Date(year, month - 1, dates);
     // console.log("Date:", todayDateOnly,"Check", date, typeof date,dateOnly )
 
-    if(dateOnly<todayDateOnly){
+    if (dateOnly < todayDateOnly) {
       return true;
     }
-    if(dateOnly>todayDateOnly){
+    if (dateOnly > todayDateOnly) {
       return false;
     }
-    
+
     const slotTime = parseTime(timeSlot);
     const now = today.getTime();
-    
+
     return slotTime < now;
   };
 
@@ -133,19 +141,19 @@ export default function RoomCard({ room ,formState, setFormState}) {
         <div className={style.availableTimeContainer}>
           {timings.map((timeSlot) => {
             const isBooked = isTimeSlotBooked(timeSlot.time, room.id);
-            const isPast = isTimeSlotPast(timeSlot.time,formState.date);
+            const isPast = isTimeSlotPast(timeSlot.time, formState.date);
             const isDisabled = isBooked || isPast;
 
             return (
               <button
                 key={timeSlot.time}
-                className={`${style.timeslot} ${isDisabled ? style.disabledButton : ""}`}
+                className={`${style.timeslot} ${
+                  isDisabled ? style.disabledButton : ""
+                }`}
                 onClick={() => {
                   if (!isDisabled) {
                     setBooking(timeSlot.time);
                     console.log(`Booking time set to: ${timeSlot.time}`);
-                
-                   
                   }
                 }}
                 disabled={isDisabled}
@@ -163,7 +171,7 @@ export default function RoomCard({ room ,formState, setFormState}) {
               setForm(true);
               setFormState((prevState) => ({
                 ...prevState,
-                time: booking
+                time: booking,
               }));
             }}
           >
@@ -178,9 +186,12 @@ export default function RoomCard({ room ,formState, setFormState}) {
             setFormState={setFormState}
             availableTime={timings}
             handleChange={handleChange}
+            query={BOOKINGS_QUERY}
           />
         )}
       </div>
     </div>
   );
-}
+};
+
+export default React.memo(RoomCard);

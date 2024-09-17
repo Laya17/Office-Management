@@ -1,22 +1,22 @@
-import React from "react"
-import style from "./BookingForm.module.css"
-import { gql, useMutation } from '@apollo/client';
-
+import React, { forwardRef, memo, useEffect, useState } from "react";
+import style from "./BookingForm.module.css";
+import { gql, useMutation } from "@apollo/client";
+import { useSearchParams } from "react-router-dom";
 
 const CREATE_BOOKING = gql`
   mutation CreateBooking(
-    $hours: Int!,
-    $time: String!,
-    $date: Date!,
-    $bookingTeam: String!,
+    $hours: Int!
+    $time: String!
+    $date: Date!
+    $bookingTeam: String!
     $roomId: ID!
   ) {
     createBooking(
       data: {
-        hours: $hours,
-        time: $time,
-        date: $date,
-        bookingTeam: $bookingTeam,
+        hours: $hours
+        time: $time
+        date: $date
+        bookingTeam: $bookingTeam
         room: { connect: { id: $roomId } }
       }
     ) {
@@ -27,40 +27,39 @@ const CREATE_BOOKING = gql`
       id
     }
   }
-
 `;
 
-const Publish=gql`mutation PublishBooking($id: ID!) {
-  publishBooking(where: { id: $id }) {
-    id
-
+const Publish = gql`
+  mutation PublishBooking($id: ID!) {
+    publishBooking(where: { id: $id }) {
+      id
+    }
   }
-}`
+`;
 
-
-
-export default function BookingForm({
+const BookingForm = ({
   formState,
   setFormState,
   room,
-  handleChange
-}) {
-  const handleInputChange = event => {
-    const { name, value } = event.target
-    setFormState(prevState => ({
+  handleChange,
+  query,
+}) => {
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormState((prevState) => ({
       ...prevState,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const [createBooking] = useMutation(CREATE_BOOKING);
-  const [publishBooking] = useMutation(Publish);
+  const [publishBooking, { data, loading }] = useMutation(Publish);
 
+  useEffect(() => {
+    console.log("PUBLISHING LOADING", loading, data);
 
-  
-  // useEffect(() => {
-  //   refetchBookings()
-  // }, [])
+    // handleChange();
+  }, [handleChange, loading, data]);
 
   const handleBooking = async (e) => {
     e.preventDefault();
@@ -73,26 +72,21 @@ export default function BookingForm({
           bookingTeam: formState.team,
           roomId: room.id,
         },
+        awaitRefetchQueries: true,
       });
 
-      // console.log("hello",data.createBooking.id);
-      
-      await publishBooking({ variables: { id: data.createBooking.id } });
-      // console.log("PUBLISHED RESPONSE",response)
-  
-      // console.log('Booking created:', data);
-      await handleChange(); 
+      const publishedResponse = await publishBooking({
+        variables: { id: data.createBooking.id },
+        awaitRefetchQueries: true,
+      });
 
-        
-     
+      console.log("publishedResponse", publishedResponse);
+
+      await handleChange();
     } catch (error) {
-      console.error('Error creating booking:', error);
+      console.error("Error creating booking:", error);
     }
   };
-
-  
-
-
 
   return (
     <div className={style.FormContainer}>
@@ -107,7 +101,6 @@ export default function BookingForm({
               onChange={handleInputChange}
             ></input>
           </label>
-
           <label>
             Date :
             <input
@@ -117,10 +110,11 @@ export default function BookingForm({
               onChange={handleInputChange}
             ></input>
           </label>
-
           <button onClick={handleBooking}>Create Booking</button>;
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
+
+export default forwardRef(BookingForm);
