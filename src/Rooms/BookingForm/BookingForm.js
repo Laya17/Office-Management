@@ -1,7 +1,6 @@
-import React, { forwardRef, memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import style from "./BookingForm.module.css";
 import { gql, useMutation } from "@apollo/client";
-import { useSearchParams } from "react-router-dom";
 
 const CREATE_BOOKING = gql`
   mutation CreateBooking(
@@ -42,7 +41,7 @@ const BookingForm = ({
   setFormState,
   room,
   handleChange,
-  query,
+  booking,
 }) => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -53,16 +52,16 @@ const BookingForm = ({
   };
 
   const [createBooking] = useMutation(CREATE_BOOKING);
-  const [publishBooking, { data, loading }] = useMutation(Publish);
-
-  useEffect(() => {
-    console.log("PUBLISHING LOADING", loading, data);
-
-    // handleChange();
-  }, [handleChange, loading, data]);
+  const [publishBooking] = useMutation(Publish);
 
   const handleBooking = async (e) => {
     e.preventDefault();
+
+    setFormState((prevState) => ({
+      ...prevState,
+      time: booking,
+    }));
+
     try {
       const { data } = await createBooking({
         variables: {
@@ -81,8 +80,9 @@ const BookingForm = ({
       });
 
       console.log("publishedResponse", publishedResponse);
-
-      await handleChange();
+      setTimeout(() => {
+        handleChange();
+      }, 500);
     } catch (error) {
       console.error("Error creating booking:", error);
     }
@@ -101,15 +101,6 @@ const BookingForm = ({
               onChange={handleInputChange}
             ></input>
           </label>
-          <label>
-            Date :
-            <input
-              type="date"
-              name="date"
-              value={formState.date}
-              onChange={handleInputChange}
-            ></input>
-          </label>
           <button onClick={handleBooking}>Create Booking</button>;
         </div>
       </form>
@@ -117,4 +108,4 @@ const BookingForm = ({
   );
 };
 
-export default forwardRef(BookingForm);
+export default BookingForm;

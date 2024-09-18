@@ -1,0 +1,8 @@
+.RoomsContainer{
+    background-color: #181818;
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+}

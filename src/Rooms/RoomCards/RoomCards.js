@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  cloneElement,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useCallback } from "react";
 import style from "./RoomCards.module.css";
 import BookingForm from "../BookingForm/BookingForm";
 import { gql, useQuery } from "@apollo/client";
@@ -58,8 +52,6 @@ const parseTime = (timeStr) => {
 
 const RoomCard = ({ room, formState, setFormState }) => {
   const [booking, setBooking] = useState("");
-  const [form, setForm] = useState(false);
-
   const [bookedArray, setBookedArray] = useState([]);
 
   const { loading, error, data, refetch } = useQuery(BOOKINGS_QUERY, {
@@ -83,7 +75,7 @@ const RoomCard = ({ room, formState, setFormState }) => {
   }, [refetch]);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error fetching data: {error.message}</p>;
+  if (error) console.log("ERROR CODE", error.networkError);
 
   const isTimeSlotBooked = (timeSlot, roomId) => {
     return bookedArray?.some(
@@ -129,7 +121,6 @@ const RoomCard = ({ room, formState, setFormState }) => {
             {room.location} | {room.occupants} seats
           </p>
         </div>
-
         <div className={style.amenitiesContainer}>
           {room.amenities.map((amenity, index) => (
             <p key={index} className={style.amenities}>
@@ -137,7 +128,6 @@ const RoomCard = ({ room, formState, setFormState }) => {
             </p>
           ))}
         </div>
-
         <div className={style.availableTimeContainer}>
           {timings.map((timeSlot) => {
             const isBooked = isTimeSlotBooked(timeSlot.time, room.id);
@@ -149,7 +139,7 @@ const RoomCard = ({ room, formState, setFormState }) => {
                 key={timeSlot.time}
                 className={`${style.timeslot} ${
                   isDisabled ? style.disabledButton : ""
-                }`}
+                } ${booking === timeSlot.time ? style.activeButton : ""}`}
                 onClick={() => {
                   if (!isDisabled) {
                     setBooking(timeSlot.time);
@@ -164,31 +154,15 @@ const RoomCard = ({ room, formState, setFormState }) => {
           })}
         </div>
 
-        {booking && (
-          <button
-            className={style.bookslot}
-            onClick={() => {
-              setForm(true);
-              setFormState((prevState) => ({
-                ...prevState,
-                time: booking,
-              }));
-            }}
-          >
-            Book a slot at {booking}
-          </button>
-        )}
-
-        {form && (
-          <BookingForm
-            room={room}
-            formState={formState}
-            setFormState={setFormState}
-            availableTime={timings}
-            handleChange={handleChange}
-            query={BOOKINGS_QUERY}
-          />
-        )}
+        <BookingForm
+          room={room}
+          formState={formState}
+          setFormState={setFormState}
+          availableTime={timings}
+          handleChange={handleChange}
+          query={BOOKINGS_QUERY}
+          booking={booking}
+        />
       </div>
     </div>
   );

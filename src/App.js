@@ -6,9 +6,11 @@ import {
   gql,
 } from "@apollo/client";
 import "./App.css";
+
 import LandingPage from "./LandingPage/LandingPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Rooms from "./Rooms/Rooms";
+import RoomsLandingPage from "./RoomsLanding/RoomsLandingPage";
 import { useState } from "react";
 import KnowledgeBase from "./KnowledgeBase/KnowledgeBase";
 
@@ -18,8 +20,6 @@ const client = new ApolloClient({
 });
 
 export default function App() {
-  const [room, setroom] = useState();
-
   return (
     <ApolloProvider client={client}>
       <Router>
