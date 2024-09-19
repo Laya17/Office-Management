@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import style from "./RoomsLandingPage.module.css";
+import logo from "../assets/logo-icon.svg";
+import { gql, useQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+
+const QUERY = gql`
+  query {
+    rooms {
+      amenities
+      image {
+        url
+      }
+      name
+      occupants
+      location
+      id
+    }
+  }
+`;
 
 export default function RoomsLandingPage() {
+  const navigate = useNavigate();
+
+  const handleRoomClick = useCallback((name, room) => {
+    navigate(`/room/${name}`, { state: room });
+  }, []);
+
+  const { loading, error, data } = useQuery(QUERY);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error fetching data: {error.message}</p>;
+  console.log(data);
+
   return (
     <div className={style.RoomsContainer}>
       <div className={style.header}>
@@ -10,11 +39,35 @@ export default function RoomsLandingPage() {
           <div className={style.subtitle}>Ramanujam IT Park</div>
         </div>
         <div className={style.logo}>
-          <img
-            src="data:image/jpeg;base64,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"
-            alt="Superops logo"
-          ></img>
+          <img className={style.imagelogo} src={logo} alt="Superops logo"></img>
         </div>
+      </div>
+      <div className={style.searchbarContainer}>
+        <input className={style.searchbar} placeholder="Search" type="text" />
+      </div>
+
+      <div className={style.roomCardsContainer}>
+        {data.rooms.map((element) => (
+          <div
+            className={style.roomCards}
+            onClick={() => handleRoomClick(element.name, element)}
+          >
+            <div className={style.imageContainer}>
+              <img
+                className={style.image}
+                src={element.image.url}
+                alt="room alternate"
+              ></img>
+            </div>
+            <div className={style.description}>
+              <div className={style.roomName}>{element.name}</div>
+              <div className={style.roomDetails}>
+                <div>{element.occupants}</div>
+                <div>{element.location}</div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

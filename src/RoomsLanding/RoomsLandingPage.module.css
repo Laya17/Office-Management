@@ -1,8 +1,84 @@
 .RoomsContainer{
     background-color: #181818;
+    padding: 20px;
 }
 
 .header{
     display: flex;
     justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.title{
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    
+}
+
+.subtitle{
+    color: #00E6B3;
+    font-size: 15px;
+}
+
+.logo{
+    border-radius: 100px;
+}
+
+.imagelogo{
+    height: 50px;
+    width: 50px;
+    border-radius: 100%;
+}
+
+.searchbarContainer{
+    
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchbar{
+    height: inherit;
+    border-radius: 5px;
+    border: 1px solid grey;
+    background-color: #8F8F8F;
+    width: -webkit-fill-available;
+}
+
+.searchbar:focus-visible{
+    outline-color: gray;
+}
+
+.roomCardsContainer{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.roomCards{
+    margin: 10px;
+}
+
+.imageContainer{
+    width: 163px;
+}
+
+.image{
+    width: 163px;
+    height: 138px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.roomName{
+    color: white;
+}
+
+.roomDetails{
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 12px;
 }
