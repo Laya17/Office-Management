@@ -5,7 +5,7 @@ import {
   useQuery,
   gql,
 } from "@apollo/client";
-import "./App.css";
+import style from "./App.module.css";
 
 import LandingPage from "./LandingPage/LandingPage";
 import RoomDetails from "./RoomsLanding/RoomDetails/RoomDetails";
@@ -22,15 +22,17 @@ const client = new ApolloClient({
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/rooms" element={<RoomsLandingPage />} />
-          <Route path="/room/:name" element={<RoomDetails />} />
-          <Route path="/knowledgebase" element={<KnowledgeBase />} />
-        </Routes>
-      </Router>
-    </ApolloProvider>
+    <div className={style.app}>
+      <ApolloProvider client={client}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/rooms" element={<RoomsLandingPage />} />
+            <Route path="/room/:name" element={<RoomDetails />} />
+            <Route path="/knowledgebase" element={<KnowledgeBase />} />
+          </Routes>
+        </Router>
+      </ApolloProvider>
+    </div>
   );
 }

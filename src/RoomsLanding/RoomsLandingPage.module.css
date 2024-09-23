@@ -1,5 +1,4 @@
 .RoomsContainer{
-    background-color: #181818;
     padding: 20px;
 }
 
@@ -54,6 +53,7 @@
 
 .roomCardsContainer{
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
