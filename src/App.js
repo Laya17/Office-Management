@@ -4,6 +4,8 @@ import LandingPage from "./LandingPage/LandingPage";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Rooms from "./Rooms/Rooms";
 import { useState } from "react";
+import Solution from "./Solution/Solution";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 const client = new ApolloClient({
@@ -18,10 +20,9 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
-     
       <Router>
         <Routes>
-        <Route path="/" element={<LandingPage  />} />
+        <Route path="/" element={ <Solution/>  } />
         <Route path="/rooms" element={<Rooms  />} />
         </Routes>
       </Router>
