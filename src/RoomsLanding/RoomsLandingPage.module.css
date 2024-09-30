@@ -1,4 +1,4 @@
-.RoomsContainer{
+ .RoomsContainer{
     padding: 20px;
 }
 
@@ -16,21 +16,23 @@
     
 }
 
+
 .subtitle{
     color: #00E6B3;
     font-size: 15px;
 }
 
+
 .logo{
     border-radius: 100px;
 }
+
 
 .imagelogo{
     height: 50px;
     width: 50px;
     border-radius: 100%;
 }
-
 .searchbarContainer{
     
     height: 30px;
@@ -38,6 +40,8 @@
     align-items: center;
     justify-content: center;
 }
+
+
 
 .searchbar{
     height: inherit;
@@ -47,33 +51,63 @@
     width: -webkit-fill-available;
 }
 
+
 .searchbar:focus-visible{
     outline-color: gray;
 }
+
 
 .roomCardsContainer{
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    /* overflow: hidden; */
 }
+
+
 
 .roomCards{
     margin: 10px;
+    display: flex;
+    width:  100vw;
 }
 
+
+
 .imageContainer{
-    width: 163px;
+    padding-right: 10px;
 }
 
 .image{
-    width: 163px;
-    height: 138px;
+    width: 100px;
+    height: 85px;
     object-fit: cover;
     border-radius: 4px;
 }
 
+
+
+.description{
+    display: flex;
+    width: 68%;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.topContainer{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
 .roomName{
     color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .roomDetails{
@@ -81,4 +115,90 @@
     justify-content: space-between;
     color: white;
     font-size: 12px;
+}
+
+
+.availableTimeContainer{
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    overflow-x: scroll;
+}
+
+
+.timeslot{
+    border-radius: 5px;
+    border: 1px solid gray;
+    color: gray;
+    padding: 5px;
+    margin: 0;
+    min-width: 50px;
+}
+
+
+
+.disabledButton{
+    background-color: black;
+}
+.bookedbutton{
+    background-color: gray;
+    color: white;
+}
+
+.activeButton{
+    background-color: green;
+} 
+
+
+.background{
+    position: fixed;
+    background: hsla(0, 6%, 7%, .5);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.formContainer{
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    position: fixed;
+    left: 20%;
+    top: 20%;
+    right: 0;
+    max-width: 300px;
+    min-height: 195px;
+    border-radius: 5px;
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, .1);
+    z-index: 1;
+}
+
+.dateContainer{
+    border: 1px solid #170426;
+    border-radius: 5px;
+    color: #170426;
+    font-size: 14px;
+    font-weight: 500;
+    height: 45px;
+    line-height: 14px;
+    margin-bottom: 24px;
+    padding-left: 16px;
+    width: 97%;
+}
+
+.submitbutton{
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    line-height: 15px;
+    max-width: 100%;
+    padding: 18px 24px;
+    text-decoration: none;
+    width: 100%;
+    background: #170426;
+    border: 1px solid #170426;
+    color: #fff;
+    border-radius: 5px;
 }

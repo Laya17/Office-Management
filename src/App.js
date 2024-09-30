@@ -10,7 +10,6 @@ import style from "./App.module.css";
 import LandingPage from "./LandingPage/LandingPage";
 import RoomDetails from "./RoomsLanding/RoomDetails/RoomDetails";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Rooms from "./Rooms/Rooms";
 import RoomsLandingPage from "./RoomsLanding/RoomsLandingPage";
 import { useState } from "react";
 import KnowledgeBase from "./KnowledgeBase/KnowledgeBase";

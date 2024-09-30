@@ -2,22 +2,23 @@ import { useLocation } from "react-router-dom";
 import { useState, useCallback } from "react";
 import style from "./RoomDetails.module.css";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { timing } from "../../Queries";
 
-const timings = [
-  { time: "9:00 AM" },
-  { time: "10:00 AM" },
-  { time: "11:00 AM" },
-  { time: "12:00 PM" },
-  { time: "1:00 PM" },
-  { time: "2:00 PM" },
-  { time: "3:00 PM" },
-  { time: "4:00 PM" },
-  { time: "5:00 PM" },
-  { time: "6:00 PM" },
-  { time: "7:00 PM" },
-  { time: "8:00 PM" },
-  { time: "9:00 PM" },
-];
+// const timings = [
+//   { time: "9:00 AM" },
+//   { time: "10:00 AM" },
+//   { time: "11:00 AM" },
+//   { time: "12:00 PM" },
+//   { time: "1:00 PM" },
+//   { time: "2:00 PM" },
+//   { time: "3:00 PM" },
+//   { time: "4:00 PM" },
+//   { time: "5:00 PM" },
+//   { time: "6:00 PM" },
+//   { time: "7:00 PM" },
+//   { time: "8:00 PM" },
+//   { time: "9:00 PM" },
+// ];
 
 const BOOKINGS_QUERY = gql`
   query Bookings($date: Date!, $roomId: ID!) {
@@ -96,6 +97,7 @@ export default function RoomDetails() {
 
   const [booking, setBooking] = useState("");
   const [bookedby, setBookedby] = useState("");
+  const [formVisible, setFormVisible] = useState(false);
   const [isdisabledbutton, setIsdisabled] = useState("");
   const [bookedArray, setBookedArray] = useState([]);
   const [createBooking] = useMutation(CREATE_BOOKING);
@@ -107,6 +109,8 @@ export default function RoomDetails() {
       setBookedArray(data.bookings);
     },
   });
+
+  const { loading: loading2, error: error2, data: data2 } = useQuery(timing);
 
   const handleChange = useCallback(async () => {
     console.log("BUTTON CLICK");
@@ -123,6 +127,12 @@ export default function RoomDetails() {
 
   if (loading) return <p>Loading...</p>;
   if (error) console.log("ERROR CODE", error.networkError);
+
+  if (loading2) return <p>Loading...</p>;
+  if (error2) console.log("ERROR CODE", error2.networkError);
+
+  const timings = data2.timings[0].timings;
+  console.log("neww", data2.timings[0].timings);
 
   const isTimeSlotBooked = (timeSlot, roomId) => {
     return bookedArray?.some(
@@ -155,6 +165,12 @@ export default function RoomDetails() {
     return slotTime < now;
   };
 
+  const handleClickOutside = (event) => {
+    if (event.target.classList.contains(style.background)) {
+      setFormVisible(false);
+    }
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
@@ -177,6 +193,14 @@ export default function RoomDetails() {
   const handleBooking = async (e) => {
     e.preventDefault();
 
+    const pattern = /^[a-zA-Z0-9._%+-]+@superops\.com$/;
+    console.log(formState.team);
+    if (!pattern.test(formState.team)) {
+      window.alert("Invalid");
+      return;
+    }
+
+    setFormVisible(false);
     setFormState((prevState) => ({
       ...prevState,
       time: booking,
@@ -252,6 +276,7 @@ export default function RoomDetails() {
                 }`}
                 onClick={() => {
                   if (!isDisabled) {
+                    setFormVisible(true);
                     setBookedby("");
                     setBooking(timeSlot.time);
                     setFormState((prevState) => ({
@@ -274,32 +299,35 @@ export default function RoomDetails() {
         {bookedby && (
           <div className={style.bookedby}>Booking done by : {bookedby}</div>
         )}
-        <form className={style.formContainer} onSubmit={handleBooking}>
-          <label>
-            Date:
-            <input
-              className={style.dateContainer}
-              value={formState.date}
-              type="date"
-              name="date"
-              placeholder={formState.date}
-              onChange={handleInputChange}
-            ></input>
-          </label>
-          <label>
-            Mail Id :
-            <input
-              className={style.dateContainer}
-              type="text"
-              name="team"
-              value={formState.team}
-              onChange={handleInputChange}
-            ></input>
-          </label>
-          <button className={style.submitbutton} type="submit">
-            Create Booking
-          </button>
-        </form>
+        {formVisible && (
+          <div className={style.background} onClick={handleClickOutside}>
+            <form className={style.formContainer} onSubmit={handleBooking}>
+              <label>
+                <input
+                  className={style.dateContainer}
+                  value={formState.date}
+                  type="date"
+                  name="date"
+                  placeholder="Date"
+                  onChange={handleInputChange}
+                ></input>
+              </label>
+              <label>
+                <input
+                  className={style.dateContainer}
+                  type="text"
+                  name="team"
+                  value={formState.team}
+                  placeholder="Mail Id"
+                  onChange={handleInputChange}
+                ></input>
+              </label>
+              <button className={style.submitbutton} type="submit">
+                Create Booking
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
