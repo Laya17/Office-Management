@@ -1,0 +1,107 @@
+.solutions{
+    background-color: rgba(250, 250, 250, 1);
+        .container{
+            margin: auto;
+            min-height: 100vh;
+            .col-3{
+                padding: 20px 16px;
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                border: 1px solid #e0e0e0;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                .logo{
+                    width: 150px;
+                }
+                .line{
+                   margin-top: 1.5rem;
+                }
+                .department{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    .dept{
+                        display: flex;
+                        padding: 16px 10px;
+                        border-radius: 0.5rem;
+                        transition: background-color 0.5s ease;
+                        .dept-icon{
+                            width: 24px;
+                        }
+                        .heading{
+                            font-size: 16px;
+                            margin: auto 0px auto 20px;
+                        }
+                    }
+                    .active{
+                        background-color: black;
+                        .heading{
+                            color: white;
+                        }
+                        .dept-icon{
+                            .iconss{
+                                filter: invert(1);
+                            }
+                        }
+                    }
+                    .dept:hover{
+                        background-color: black;
+                        .heading{
+                            color: white;
+                        }
+                        .dept-icon{
+                            .iconss{
+                                filter: invert(1);
+                            }
+                        }
+                    }
+                }
+            } 
+            .col-8{
+                background-color: rgba(255, 255, 255, 1);
+                padding: 20px;
+                border-radius: 20px;
+                border: 1px solid #e0e0e0;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                .super-heading{
+                    background-color: black;
+                    border-radius: 20px;
+                }
+                .pdf-container{
+                    .h-wrap{
+                        padding: 22px;
+                       
+                    }
+                    .pdf-files{
+                        .pdf-file{
+                            margin-top: 20px;
+                            padding: 16px 16px;
+                            border-radius: 20px;
+                            border: 1px solid #e0e0e0;
+                            .pdf-image{
+                                max-width:100px;   
+                                .img{
+                                    border-radius: 20px 0px;
+                                } 
+                            }
+                            .word-wrap{
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: space-between;
+                                margin-left: 20px;
+                                .pdf-name{
+                                    font-size: 20px;
+                                }
+                                .view-icon-wrap{
+                                    width: 20px;
+                                    
+                                }
+                            }
+                        }
+                        .pdf-file:hover{
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        }
+                    }
+                }
+            }
+        }
+}
