@@ -142,6 +142,7 @@
 
 .disabledButton{
     background-color: black;
+    cursor: disabled;
 }
 .bookedbutton{
     background-color: gray;

@@ -16,7 +16,8 @@ export default function RoomComponent({ element }) {
     date: new Date().toISOString().split("T")[0],
     roomId: "",
   });
-  const [booking, setBooking] = useState("");
+  const [booking, setBooking] = useState([]);
+  const [room, setRoom] = useState("");
   const [formVisible, setFormVisible] = useState(false);
   const [bookedby, setBookedby] = useState("");
   const [createBooking] = useMutation(CREATE_BOOKING);
@@ -130,10 +131,47 @@ export default function RoomComponent({ element }) {
       console.error("Error creating booking:", error);
     }
   };
+
+  function MultipleBookings(
+    isBooked,
+    isDisabled,
+    timeSlot,
+    booking,
+    isSelected
+  ) {
+    if (room === "" || room === element.id) {
+    } else {
+      setBooking([]);
+    }
+
+    if (!isDisabled) {
+      if (isSelected) {
+        setBooking(booking.filter((bookedTime) => bookedTime !== timeSlot));
+      } else {
+        setBooking([...booking, timeSlot]);
+      }
+
+      setBookedby("");
+      setFormState((prevState) => ({
+        ...prevState,
+        time: [...booking, timeSlot],
+        roomId: element.id,
+      }));
+
+      console.log(`Booking time toggled: ${timeSlot}`);
+    } else if (isBooked) {
+      setBookedby("");
+      getBookedby(formState.date, timeSlot, bookedArray, setBookedby);
+    }
+  }
+
   return (
     <div style={{ display: "flex" }}>
       <div className={style.roomCards}>
-        <div className={style.imageContainer}>
+        <div
+          className={style.imageContainer}
+          onClick={() => setFormVisible(true)}
+        >
           <img
             className={style.image}
             src={element.image.url}
@@ -154,12 +192,6 @@ export default function RoomComponent({ element }) {
             </div>
           </div>
           <div className={style.availableTimeContainer}>
-            {/* <a
-              href="https://superopsalpha.com/?src=mspnordics&plan=Super-2024&currency=usd"
-              target="__blank"
-            >
-              SuperopsAlpha
-            </a> */}
             {timings.map((timeSlot) => {
               const isBooked = isTimeSlotBooked(
                 timeSlot.time,
@@ -168,6 +200,9 @@ export default function RoomComponent({ element }) {
               );
               const isPast = isTimeSlotPast(timeSlot.time, formState.date);
               const isDisabled = isBooked || isPast;
+              const isSelected = booking.some(
+                (bookedTime) => bookedTime === timeSlot.time
+              );
 
               return (
                 <button
@@ -175,29 +210,16 @@ export default function RoomComponent({ element }) {
                   className={`${style.timeslot} ${
                     isPast ? style.disabledButton : ""
                   }${isBooked ? style.bookedbutton : ""} ${
-                    booking === timeSlot.time ? style.activeButton : ""
+                    isSelected ? style.activeButton : ""
                   }`}
                   onClick={(e) => {
-                    if (!isDisabled) {
-                      setFormVisible(true);
-                      setBookedby("");
-                      setBooking(timeSlot.time);
-                      setFormState((prevState) => ({
-                        ...prevState,
-                        time: timeSlot.time,
-                        roomId: element.id,
-                      }));
-                      console.log(`Booking time set to: ${timeSlot.time}`);
-                    } else if (isBooked) {
-                      setBookedby("");
-
-                      getBookedby(
-                        formState.date,
-                        timeSlot.time,
-                        bookedArray,
-                        setBookedby
-                      );
-                    }
+                    MultipleBookings(
+                      isBooked,
+                      isDisabled,
+                      timeSlot.time,
+                      booking,
+                      isSelected
+                    );
                   }}
                 >
                   {timeSlot.time}
