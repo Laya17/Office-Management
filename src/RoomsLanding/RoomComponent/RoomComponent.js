@@ -38,12 +38,13 @@ export default function RoomComponent({ element }) {
   });
 
   useEffect(() => {
-    console.log("DATA", datas);
-
-    setTimeout(() => {
-      console.log("timeouT", datas);
-    }, 1000);
-  }, [datas]);
+    if (element.id) {
+      setFormState((prevState) => ({
+        ...prevState,
+        roomId: element.id,
+      }));
+    }
+  }, [element.id]);
 
   const handleChange = useCallback(async () => {
     console.log("BUTTON CLICK");
@@ -130,7 +131,7 @@ export default function RoomComponent({ element }) {
     }
   };
   return (
-    <div>
+    <div style={{ display: "flex" }}>
       <div className={style.roomCards}>
         <div className={style.imageContainer}>
           <img
@@ -153,6 +154,12 @@ export default function RoomComponent({ element }) {
             </div>
           </div>
           <div className={style.availableTimeContainer}>
+            {/* <a
+              href="https://superopsalpha.com/?src=mspnordics&plan=Super-2024&currency=usd"
+              target="__blank"
+            >
+              SuperopsAlpha
+            </a> */}
             {timings.map((timeSlot) => {
               const isBooked = isTimeSlotBooked(
                 timeSlot.time,
@@ -172,14 +179,14 @@ export default function RoomComponent({ element }) {
                   }`}
                   onClick={(e) => {
                     if (!isDisabled) {
-                      //   setFormVisible(true);
+                      setFormVisible(true);
                       setBookedby("");
                       setBooking(timeSlot.time);
-                      //   setFormState((prevState) => ({
-                      //     ...prevState,
-                      //     time: timeSlot.time,
-                      //     roomId: element.id,
-                      //   }));
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        time: timeSlot.time,
+                        roomId: element.id,
+                      }));
                       console.log(`Booking time set to: ${timeSlot.time}`);
                     } else if (isBooked) {
                       setBookedby("");
@@ -198,11 +205,12 @@ export default function RoomComponent({ element }) {
               );
             })}
           </div>
+          {bookedby && (
+            <div className={style.bookedby}>Booking done by : {bookedby}</div>
+          )}
         </div>
       </div>
-      {bookedby && (
-        <div className={style.bookedby}>Booking done by : {bookedby}</div>
-      )}
+
       {formVisible && (
         <div className={style.background} onClick={handleClickOutside}>
           <form className={style.formContainer} onSubmit={handleBooking}>
