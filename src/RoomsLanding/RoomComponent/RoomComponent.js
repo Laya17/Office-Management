@@ -8,7 +8,12 @@ import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { timing, BOOKINGS_QUERY, CREATE_BOOKING, Publish } from "../../Queries";
 
-export default function RoomComponent({ element }) {
+export default function RoomComponent({
+  element,
+  room,
+  setRoom,
+
+}) {
   const [bookedArray, setBookedArray] = useState([]);
   const [formState, setFormState] = useState({
     time: "",
@@ -17,7 +22,6 @@ export default function RoomComponent({ element }) {
     roomId: "",
   });
   const [booking, setBooking] = useState([]);
-  const [room, setRoom] = useState("");
   const [formVisible, setFormVisible] = useState(false);
   const [bookedby, setBookedby] = useState("");
   const [createBooking] = useMutation(CREATE_BOOKING);
@@ -37,6 +41,11 @@ export default function RoomComponent({ element }) {
       setBookedArray(data.bookings);
     },
   });
+
+  useEffect(() => {
+    setRoom(element.id);
+    setBooking([]);
+  }, [element.id]);
 
   useEffect(() => {
     if (element.id) {
@@ -59,6 +68,10 @@ export default function RoomComponent({ element }) {
       console.error("REFETCH ERROR", err);
     }
   }, [refetch]);
+
+  useEffect(() => {
+    console.log("booking", booking);
+  }, [room, booking]);
 
   if (loading2) return <p>Loading...</p>;
   if (error2) console.log("ERROR CODE", error2.networkError);
@@ -139,22 +152,28 @@ export default function RoomComponent({ element }) {
     booking,
     isSelected
   ) {
-    if (room === "" || room === element.id) {
-    } else {
-      setBooking([]);
+    if (room === element.id) {
+      setBooking([timeSlot]);
+      // setRoom(element.id);
     }
 
+    console.log("booking", booking, "roomId", room);
     if (!isDisabled) {
       if (isSelected) {
+        console.log("booking2", booking, "roomId", room);
         setBooking(booking.filter((bookedTime) => bookedTime !== timeSlot));
+        console.log("booking after", booking, "roomId", room);
       } else {
         setBooking([...booking, timeSlot]);
+        console.log("booking not selected", booking, "roomId", room);
       }
 
       setBookedby("");
       setFormState((prevState) => ({
         ...prevState,
-        time: [...booking, timeSlot],
+        time: booking.includes(timeSlot)
+          ? booking.filter((bookedTime) => bookedTime !== timeSlot)
+          : [timeSlot],
         roomId: element.id,
       }));
 
@@ -200,8 +219,14 @@ export default function RoomComponent({ element }) {
               );
               const isPast = isTimeSlotPast(timeSlot.time, formState.date);
               const isDisabled = isBooked || isPast;
-              const isSelected = booking.some(
-                (bookedTime) => bookedTime === timeSlot.time
+              const isSelected = booking.includes(timeSlot.time);
+              console.log(
+                "timeslot",
+                timeSlot.time,
+                "room",
+                room,
+                "isSelected",
+                isSelected
               );
 
               return (

@@ -38,7 +38,7 @@ export const isTimeSlotPast = (timeSlot, date) => {
 };
 
 export const isTimeSlotBooked = (timeSlot, roomId, bookedArray) => {
-  console.log("IsBooked?", bookedArray);
+  // console.log("IsBooked?", bookedArray);
   return bookedArray?.some(
     (booking) => booking.time === timeSlot && booking.room.id === roomId
   );

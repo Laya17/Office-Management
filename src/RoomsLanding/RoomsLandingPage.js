@@ -1,13 +1,16 @@
 import style from "./RoomsLandingPage.module.css";
 import logo from "../assets/logo-icon.svg";
 import { useQuery } from "@apollo/client";
-
+import { useState } from "react";
 import { RoomDetails } from "../Queries";
 
 import RoomComponent from "./RoomComponent/RoomComponent";
 
 export default function RoomsLandingPage() {
   const { loading, error, data } = useQuery(RoomDetails);
+
+  const [room, setRoom] = useState("");
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error fetching data: {error.message}</p>;
   console.log("Hello from rooms data", data.rooms);
@@ -29,7 +32,11 @@ export default function RoomsLandingPage() {
 
       <div className={style.roomCardsContainer}>
         {data.rooms.map((element) => (
-          <RoomComponent element={element}></RoomComponent>
+          <RoomComponent
+            element={element}
+            room={room}
+            setRoom={setRoom}
+          ></RoomComponent>
         ))}
       </div>
     </div>
