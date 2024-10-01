@@ -9,7 +9,7 @@ import RoomComponent from "./RoomComponent/RoomComponent";
 export default function RoomsLandingPage() {
   const { loading, error, data } = useQuery(RoomDetails);
 
-  const [room, setRoom] = useState("");
+  const [roomId, setRoomId] = useState();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error fetching data: {error.message}</p>;
@@ -31,11 +31,11 @@ export default function RoomsLandingPage() {
       </div>
 
       <div className={style.roomCardsContainer}>
-        {data.rooms.map((element) => (
+        {data.rooms.map((room) => (
           <RoomComponent
-            element={element}
             room={room}
-            setRoom={setRoom}
+            roomId={roomId}
+            setRoomId={setRoomId}
           ></RoomComponent>
         ))}
       </div>

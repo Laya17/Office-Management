@@ -8,12 +8,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { timing, BOOKINGS_QUERY, CREATE_BOOKING, Publish } from "../../Queries";
 
-export default function RoomComponent({
-  element,
-  room,
-  setRoom,
-
-}) {
+export default function RoomComponent({ room, roomId, setRoomId }) {
   const [bookedArray, setBookedArray] = useState([]);
   const [formState, setFormState] = useState({
     time: "",
@@ -43,18 +38,20 @@ export default function RoomComponent({
   });
 
   useEffect(() => {
-    setRoom(element.id);
-    setBooking([]);
-  }, [element.id]);
+    if (roomId !== room.id) {
+      setBooking([]);
+    }
+  }, [roomId]);
+
 
   useEffect(() => {
-    if (element.id) {
+    if (room.id) {
       setFormState((prevState) => ({
         ...prevState,
-        roomId: element.id,
+        roomId: room.id,
       }));
     }
-  }, [element.id]);
+  }, [room.id]);
 
   const handleChange = useCallback(async () => {
     console.log("BUTTON CLICK");
@@ -71,7 +68,7 @@ export default function RoomComponent({
 
   useEffect(() => {
     console.log("booking", booking);
-  }, [room, booking]);
+  }, [roomId, booking]);
 
   if (loading2) return <p>Loading...</p>;
   if (error2) console.log("ERROR CODE", error2.networkError);
@@ -152,20 +149,20 @@ export default function RoomComponent({
     booking,
     isSelected
   ) {
-    if (room === element.id) {
+    if (!roomId || roomId !== room.id) {
       setBooking([timeSlot]);
-      // setRoom(element.id);
+      setRoomId(room.id);
     }
 
-    console.log("booking", booking, "roomId", room);
+    console.log("booking", booking, "roomId", roomId);
     if (!isDisabled) {
       if (isSelected) {
-        console.log("booking2", booking, "roomId", room);
+        console.log("booking2", booking, "roomId", roomId);
         setBooking(booking.filter((bookedTime) => bookedTime !== timeSlot));
-        console.log("booking after", booking, "roomId", room);
+        console.log("booking after", booking, "roomId", roomId);
       } else {
         setBooking([...booking, timeSlot]);
-        console.log("booking not selected", booking, "roomId", room);
+        console.log("booking not selected", booking, "roomId", roomId);
       }
 
       setBookedby("");
@@ -174,7 +171,7 @@ export default function RoomComponent({
         time: booking.includes(timeSlot)
           ? booking.filter((bookedTime) => bookedTime !== timeSlot)
           : [timeSlot],
-        roomId: element.id,
+        roomId: room.id,
       }));
 
       console.log(`Booking time toggled: ${timeSlot}`);
@@ -193,20 +190,20 @@ export default function RoomComponent({
         >
           <img
             className={style.image}
-            src={element.image.url}
-            alt="room alternate"
+            src={room.image.url}
+            alt="roomId alternate"
           ></img>
         </div>
         <div className={style.description}>
           <div className={style.topContainer}>
             <div className={style.roomName}>
               <span className="material-symbols-outlined">badge</span>
-              {element.name}
+              {room.name}
             </div>
             <div className={style.roomDetails}>
               <div className={style.roomName}>
                 <span class="material-symbols-outlined">person</span>
-                {element.occupants}
+                {room.occupants}
               </div>
             </div>
           </div>
@@ -214,7 +211,7 @@ export default function RoomComponent({
             {timings.map((timeSlot) => {
               const isBooked = isTimeSlotBooked(
                 timeSlot.time,
-                element.id,
+                room.id,
                 bookedArray
               );
               const isPast = isTimeSlotPast(timeSlot.time, formState.date);
@@ -223,8 +220,8 @@ export default function RoomComponent({
               console.log(
                 "timeslot",
                 timeSlot.time,
-                "room",
-                room,
+                "roomId",
+                roomId,
                 "isSelected",
                 isSelected
               );
