@@ -22,7 +22,6 @@ export const isTimeSlotPast = (timeSlot, date) => {
   );
   const [year, month, dates] = date.split("-");
   const dateOnly = new Date(year, month - 1, dates);
-  // console.log("Date:", todayDateOnly,"Check", date, typeof date,dateOnly )
 
   if (dateOnly < todayDateOnly) {
     return true;
@@ -31,7 +30,10 @@ export const isTimeSlotPast = (timeSlot, date) => {
     return false;
   }
 
-  const slotTime = parseTime(timeSlot);
+  let slotTime = parseTime(timeSlot);
+
+  slotTime += 60 * 60 * 1000;
+
   const now = today.getTime();
 
   return slotTime < now;

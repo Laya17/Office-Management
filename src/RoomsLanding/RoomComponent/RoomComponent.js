@@ -8,14 +8,16 @@ import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { timing, BOOKINGS_QUERY, CREATE_BOOKING, Publish } from "../../Queries";
 
-export default function RoomComponent({ room, roomId, setRoomId }) {
+export default function RoomComponent({
+  room,
+  roomId,
+  setRoomId,
+  sortedRooms,
+  formState,
+  setFormState,
+}) {
   const [bookedArray, setBookedArray] = useState([]);
-  const [formState, setFormState] = useState({
-    time: "",
-    team: "",
-    date: new Date().toISOString().split("T")[0],
-    roomId: "",
-  });
+
   const [booking, setBooking] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [bookedby, setBookedby] = useState("");
@@ -42,8 +44,8 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
       setBooking([]);
     }
   }, [roomId]);
-
-
+  
+  console.log("SortedRomm", sortedRooms, "bookings array", bookedArray);
   useEffect(() => {
     if (room.id) {
       setFormState((prevState) => ({
@@ -102,43 +104,40 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
       formState.time
     );
     const pattern = /^[a-zA-Z0-9._%+-]+@superops\.com$/;
-    console.log(formState.team);
     if (!pattern.test(formState.team)) {
-      window.alert("Invalid");
+      window.alert("Invalid email");
       return;
     }
 
     setFormVisible(false);
-    setFormState((prevState) => ({
-      ...prevState,
-      time: booking,
-    }));
 
     try {
-      const { data } = await createBooking({
-        variables: {
-          hours: 1,
-          time: formState.time,
-          date: formState.date,
-          bookingTeam: formState.team,
-          roomId: formState.roomId,
-        },
-        awaitRefetchQueries: true,
-      });
+      for (const time of formState.time) {
+        const { data } = await createBooking({
+          variables: {
+            hours: 1,
+            time: time,
+            date: formState.date,
+            bookingTeam: formState.team,
+            roomId: formState.roomId,
+          },
+          awaitRefetchQueries: true,
+        });
 
-      const publishedResponse = await publishBooking({
-        variables: { id: data.createBooking.id },
-        awaitRefetchQueries: true,
-      });
+        await publishBooking({
+          variables: { id: data.createBooking.id },
+          awaitRefetchQueries: true,
+        });
 
-      console.log("publishedResponse", publishedResponse);
+        console.log("Booking and publishing complete for time:", time);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
       setTimeout(() => {
-        setBooking("");
-
+        setBooking([]);
         handleChange();
       }, 500);
     } catch (error) {
-      console.error("Error creating booking:", error);
+      console.error("Error creating bookings:", error);
     }
   };
 
@@ -150,31 +149,26 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
     isSelected
   ) {
     if (!roomId || roomId !== room.id) {
-      setBooking([timeSlot]);
       setRoomId(room.id);
     }
 
-    console.log("booking", booking, "roomId", roomId);
     if (!isDisabled) {
+      let updatedBooking;
       if (isSelected) {
-        console.log("booking2", booking, "roomId", roomId);
-        setBooking(booking.filter((bookedTime) => bookedTime !== timeSlot));
-        console.log("booking after", booking, "roomId", roomId);
+        updatedBooking = booking.filter(
+          (bookedTime) => bookedTime !== timeSlot
+        );
       } else {
-        setBooking([...booking, timeSlot]);
-        console.log("booking not selected", booking, "roomId", roomId);
+        updatedBooking = [...booking, timeSlot];
       }
 
-      setBookedby("");
+      setBooking(updatedBooking);
+
       setFormState((prevState) => ({
         ...prevState,
-        time: booking.includes(timeSlot)
-          ? booking.filter((bookedTime) => bookedTime !== timeSlot)
-          : [timeSlot],
+        time: updatedBooking,
         roomId: room.id,
       }));
-
-      console.log(`Booking time toggled: ${timeSlot}`);
     } else if (isBooked) {
       setBookedby("");
       getBookedby(formState.date, timeSlot, bookedArray, setBookedby);
@@ -183,6 +177,8 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
 
   return (
     <div style={{ display: "flex" }}>
+    
+      
       <div className={style.roomCards}>
         <div
           className={style.imageContainer}
@@ -217,14 +213,16 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
               const isPast = isTimeSlotPast(timeSlot.time, formState.date);
               const isDisabled = isBooked || isPast;
               const isSelected = booking.includes(timeSlot.time);
-              console.log(
+              {
+                /* console.log(
                 "timeslot",
                 timeSlot.time,
                 "roomId",
                 roomId,
                 "isSelected",
                 isSelected
-              );
+              ); */
+              }
 
               return (
                 <button
@@ -249,6 +247,7 @@ export default function RoomComponent({ room, roomId, setRoomId }) {
               );
             })}
           </div>
+
           {bookedby && (
             <div className={style.bookedby}>Booking done by : {bookedby}</div>
           )}
