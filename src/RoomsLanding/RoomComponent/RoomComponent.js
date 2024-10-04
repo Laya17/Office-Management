@@ -9,15 +9,18 @@ import { useQuery, useMutation } from "@apollo/client";
 import { timing, BOOKINGS_QUERY, CREATE_BOOKING, Publish } from "../../Queries";
 
 export default function RoomComponent({
+  data,
   room,
   roomId,
   setRoomId,
   sortedRooms,
+  setSortedRooms,
   formState,
   setFormState,
 }) {
-  const [bookedArray, setBookedArray] = useState([]);
-
+  const [bookingsByRoom, setBookingsByRoom] = useState({});
+  // const [roomId, setRoomId] = useState(room.id);
+  const [time, setTime] = useState("");
   const [booking, setBooking] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [bookedby, setBookedby] = useState("");
@@ -29,23 +32,18 @@ export default function RoomComponent({
   const {
     loading: loading3,
     error: error3,
-    data: datas,
+    data: bookingsData,
     refetch,
   } = useQuery(BOOKINGS_QUERY, {
-    variables: { date: formState.date, roomId: formState.roomId },
+    variables: { date: formState.date, roomId: room.id },
     onCompleted: (data) => {
-      console.log("Booking set", data);
-      setBookedArray(data.bookings);
+      setBookingsByRoom((prevBookings) => ({
+        ...prevBookings,
+        [room.id]: data.bookings,
+      }));
     },
   });
 
-  useEffect(() => {
-    if (roomId !== room.id) {
-      setBooking([]);
-    }
-  }, [roomId]);
-  
-  console.log("SortedRomm", sortedRooms, "bookings array", bookedArray);
   useEffect(() => {
     if (room.id) {
       setFormState((prevState) => ({
@@ -55,28 +53,54 @@ export default function RoomComponent({
     }
   }, [room.id]);
 
+  // useEffect(() => {
+  //   if (data && data.rooms) {
+  //     const currentTime = new Date().toLocaleTimeString([], {
+  //       hour: "2-digit",
+  //     });
+  //     var curr = currentTime.split(" ")[0] + " 00 PM";
+  //     // console.log("Time", curr);
+  //     const sorted = [...data.rooms].sort((roomA, roomB) => {
+  //       const isRoomABookedNow = isTimeSlotBooked(curr, roomA.id, data.rooms);
+  //       const isRoomBBookedNow = isTimeSlotBooked(curr, roomB.id, data.rooms);
+  //       console.log("bookedArray", data.rooms);
+  //       console.log("Room A?", isRoomABookedNow, "Room B", isRoomBBookedNow);
+  //       if (!isRoomABookedNow && isRoomBBookedNow) return -1;
+  //       if (isRoomABookedNow && !isRoomBBookedNow) return 1;
+  //       return 0;
+  //     });
+  //     setSortedRooms(sorted);
+  //   }
+  // }, [data]);
+
+  console.log("FROM STATE -->", formState);
+
+  useEffect(() => {
+    if (room.id !== roomId) {
+      console.log("Inside UseEffect", formState, "time", time);
+
+      setBooking([]);
+
+      setFormState((prevState) => ({
+        ...prevState,
+        time: [],
+        roomId: room.id,
+      }));
+      console.log("Inside UseEffect2", booking);
+    }
+  }, [room.id, roomId, setFormState, time]);
+
   const handleChange = useCallback(async () => {
-    console.log("BUTTON CLICK");
     try {
       const response = await refetch();
-      console.log("RESPONSE REFETCH", response);
-      setBookedArray(response.data.bookings);
-
-      console.log("REFETCHed...");
+      setBookingsByRoom((prevBookings) => ({
+        ...prevBookings,
+        [room.id]: response.data.bookings,
+      }));
     } catch (err) {
       console.error("REFETCH ERROR", err);
     }
-  }, [refetch]);
-
-  useEffect(() => {
-    console.log("booking", booking);
-  }, [roomId, booking]);
-
-  if (loading2) return <p>Loading...</p>;
-  if (error2) console.log("ERROR CODE", error2.networkError);
-  const timings = data2.timings[0].timings;
-  if (loading3) return <p>Loading...</p>;
-  if (error3) console.log("ERROR CODE", error2.networkError);
+  }, [refetch, room.id]);
 
   const handleClickOutside = (event) => {
     if (event.target.classList.contains(style.background)) {
@@ -86,7 +110,6 @@ export default function RoomComponent({
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-
     setFormState((prevState) => ({
       ...prevState,
       [name]: value,
@@ -96,13 +119,7 @@ export default function RoomComponent({
   const handleBooking = async (e) => {
     e.preventDefault();
 
-    console.log(
-      "formstate details",
-      formState.date,
-      formState.roomId,
-      formState.team,
-      formState.time
-    );
+    console.log("Form state", formState);
     const pattern = /^[a-zA-Z0-9._%+-]+@superops\.com$/;
     if (!pattern.test(formState.team)) {
       window.alert("Invalid email");
@@ -129,9 +146,10 @@ export default function RoomComponent({
           awaitRefetchQueries: true,
         });
 
-        console.log("Booking and publishing complete for time:", time);
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
+      console.log("Booking done", formState.time);
+
       setTimeout(() => {
         setBooking([]);
         handleChange();
@@ -148,7 +166,8 @@ export default function RoomComponent({
     booking,
     isSelected
   ) {
-    if (!roomId || roomId !== room.id) {
+    setTime(timeSlot);
+    if (roomId !== room.id) {
       setRoomId(room.id);
     }
 
@@ -159,26 +178,34 @@ export default function RoomComponent({
           (bookedTime) => bookedTime !== timeSlot
         );
       } else {
+        console.log("Not Selected", timeSlot);
         updatedBooking = [...booking, timeSlot];
       }
 
       setBooking(updatedBooking);
-
       setFormState((prevState) => ({
         ...prevState,
-        time: updatedBooking,
+        time: booking,
         roomId: room.id,
       }));
+
+      console.log("formState", updatedBooking);
+      // console.log("Booking", booking);
+      // console.log("time", time);
     } else if (isBooked) {
       setBookedby("");
       getBookedby(formState.date, timeSlot, bookedArray, setBookedby);
     }
   }
 
+  if (loading2 || loading3) return <p>Loading...</p>;
+  if (error2 || error3) console.error("ERROR", error2 || error3);
+
+  const timings = data2.timings[0].timings;
+  const bookedArray = bookingsByRoom[room.id] || [];
+
   return (
     <div style={{ display: "flex" }}>
-    
-      
       <div className={style.roomCards}>
         <div
           className={style.imageContainer}
@@ -187,7 +214,7 @@ export default function RoomComponent({
           <img
             className={style.image}
             src={room.image.url}
-            alt="roomId alternate"
+            alt="room image"
           ></img>
         </div>
         <div className={style.description}>
@@ -198,7 +225,7 @@ export default function RoomComponent({
             </div>
             <div className={style.roomDetails}>
               <div className={style.roomName}>
-                <span class="material-symbols-outlined">person</span>
+                <span className="material-symbols-outlined">person</span>
                 {room.occupants}
               </div>
             </div>
@@ -213,43 +240,32 @@ export default function RoomComponent({
               const isPast = isTimeSlotPast(timeSlot.time, formState.date);
               const isDisabled = isBooked || isPast;
               const isSelected = booking.includes(timeSlot.time);
-              {
-                /* console.log(
-                "timeslot",
-                timeSlot.time,
-                "roomId",
-                roomId,
-                "isSelected",
-                isSelected
-              ); */
-              }
 
               return (
                 <button
                   key={timeSlot.time}
                   className={`${style.timeslot} ${
                     isPast ? style.disabledButton : ""
-                  }${isBooked ? style.bookedbutton : ""} ${
+                  } ${isBooked ? style.bookedbutton : ""} ${
                     isSelected ? style.activeButton : ""
                   }`}
-                  onClick={(e) => {
+                  onClick={() =>
                     MultipleBookings(
                       isBooked,
                       isDisabled,
                       timeSlot.time,
                       booking,
                       isSelected
-                    );
-                  }}
+                    )
+                  }
                 >
                   {timeSlot.time}
                 </button>
               );
             })}
           </div>
-
           {bookedby && (
-            <div className={style.bookedby}>Booking done by : {bookedby}</div>
+            <div className={style.bookedby}>Booking done by: {bookedby}</div>
           )}
         </div>
       </div>
