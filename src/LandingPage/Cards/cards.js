@@ -7,10 +7,9 @@ export default function Card({ carditem }) {
     <Link to={`/${carditem.title.toLowerCase()}`}>
       <div className={style.Card}>
         <div className={style.ImageContainer}>
-          
           <img
             className={style.Cardimg}
-            alt={carditem.title} 
+            alt={carditem.title}
             src={carditem.image.url}
           />
         </div>

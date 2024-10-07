@@ -13,17 +13,16 @@ export default function RoomComponent({
   room,
   roomId,
   setRoomId,
-  sortedRooms,
-  setSortedRooms,
+  bookingsByRoom,
+  setBookingsByRoom,
   formState,
   setFormState,
 }) {
-  const [bookingsByRoom, setBookingsByRoom] = useState({});
-  // const [roomId, setRoomId] = useState(room.id);
   const [time, setTime] = useState("");
   const [booking, setBooking] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [bookedby, setBookedby] = useState("");
+  const [tooltipTimeSlot, setTooltipTimeSlot] = useState(null); // New state to track the time slot for tooltip
   const [createBooking] = useMutation(CREATE_BOOKING);
   const [publishBooking] = useMutation(Publish);
 
@@ -45,48 +44,8 @@ export default function RoomComponent({
   });
 
   useEffect(() => {
-    if (room.id) {
-      setFormState((prevState) => ({
-        ...prevState,
-        roomId: room.id,
-      }));
-    }
-  }, [room.id]);
-
-  // useEffect(() => {
-  //   if (data && data.rooms) {
-  //     const currentTime = new Date().toLocaleTimeString([], {
-  //       hour: "2-digit",
-  //     });
-  //     var curr = currentTime.split(" ")[0] + " 00 PM";
-  //     // console.log("Time", curr);
-  //     const sorted = [...data.rooms].sort((roomA, roomB) => {
-  //       const isRoomABookedNow = isTimeSlotBooked(curr, roomA.id, data.rooms);
-  //       const isRoomBBookedNow = isTimeSlotBooked(curr, roomB.id, data.rooms);
-  //       console.log("bookedArray", data.rooms);
-  //       console.log("Room A?", isRoomABookedNow, "Room B", isRoomBBookedNow);
-  //       if (!isRoomABookedNow && isRoomBBookedNow) return -1;
-  //       if (isRoomABookedNow && !isRoomBBookedNow) return 1;
-  //       return 0;
-  //     });
-  //     setSortedRooms(sorted);
-  //   }
-  // }, [data]);
-
-  console.log("FROM STATE -->", formState);
-
-  useEffect(() => {
     if (room.id !== roomId) {
-      console.log("Inside UseEffect", formState, "time", time);
-
       setBooking([]);
-
-      setFormState((prevState) => ({
-        ...prevState,
-        time: [],
-        roomId: room.id,
-      }));
-      console.log("Inside UseEffect2", booking);
     }
   }, [room.id, roomId, setFormState, time]);
 
@@ -118,8 +77,6 @@ export default function RoomComponent({
 
   const handleBooking = async (e) => {
     e.preventDefault();
-
-    console.log("Form state", formState);
     const pattern = /^[a-zA-Z0-9._%+-]+@superops\.com$/;
     if (!pattern.test(formState.team)) {
       window.alert("Invalid email");
@@ -148,7 +105,6 @@ export default function RoomComponent({
 
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
-      console.log("Booking done", formState.time);
 
       setTimeout(() => {
         setBooking([]);
@@ -178,23 +134,19 @@ export default function RoomComponent({
           (bookedTime) => bookedTime !== timeSlot
         );
       } else {
-        console.log("Not Selected", timeSlot);
         updatedBooking = [...booking, timeSlot];
       }
 
       setBooking(updatedBooking);
       setFormState((prevState) => ({
         ...prevState,
-        time: booking,
+        time: updatedBooking,
         roomId: room.id,
       }));
-
-      console.log("formState", updatedBooking);
-      // console.log("Booking", booking);
-      // console.log("time", time);
     } else if (isBooked) {
       setBookedby("");
       getBookedby(formState.date, timeSlot, bookedArray, setBookedby);
+      setTooltipTimeSlot(timeSlot); // Set the time slot for tooltip
     }
   }
 
@@ -242,31 +194,37 @@ export default function RoomComponent({
               const isSelected = booking.includes(timeSlot.time);
 
               return (
-                <button
-                  key={timeSlot.time}
-                  className={`${style.timeslot} ${
-                    isPast ? style.disabledButton : ""
-                  } ${isBooked ? style.bookedbutton : ""} ${
-                    isSelected ? style.activeButton : ""
-                  }`}
-                  onClick={() =>
-                    MultipleBookings(
-                      isBooked,
-                      isDisabled,
-                      timeSlot.time,
-                      booking,
-                      isSelected
-                    )
-                  }
-                >
-                  {timeSlot.time}
-                </button>
+                <div key={timeSlot.time} className={style.timeslotContainer}>
+                  <button
+                    className={`${style.timeslot} ${
+                      isPast ? style.disabledButton : ""
+                    } 
+                      ${isBooked ? style.bookedbutton : ""} 
+                      ${isSelected ? style.activeButton : ""}
+                      ${style.tooltip}`}
+                    onClick={() =>
+                      MultipleBookings(
+                        isBooked,
+                        isDisabled,
+                        timeSlot.time,
+                        booking,
+                        isSelected
+                      )
+                    }
+                  >
+                    {timeSlot.time}
+                  </button>
+                  {isBooked &&
+                    tooltipTimeSlot === timeSlot.time &&
+                    bookedby && (
+                      <div className={style.tooltipText}>
+                       {bookedby}
+                      </div>
+                    )}
+                </div>
               );
             })}
           </div>
-          {bookedby && (
-            <div className={style.bookedby}>Booking done by: {bookedby}</div>
-          )}
         </div>
       </div>
 

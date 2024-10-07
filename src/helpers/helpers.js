@@ -40,17 +40,19 @@ export const isTimeSlotPast = (timeSlot, date) => {
 };
 
 export const isTimeSlotBooked = (timeSlot, roomId, bookedArray) => {
-  // console.log("IsBooked?", bookedArray[0]);
-  // console.log(
-  //   "Booked Array",
-  //   bookedArray[0]?.time,
-  //   timeSlot,
-  //   "boolean",
-  //   bookedArray[0]?.time === timeSlot
-  // );
-  return bookedArray?.some(
+  // console.log("Inside Helper", timeSlot, roomId, bookedArray);
+  if (!bookedArray) {
+    return false;
+  }
+  // console.log("Partition" ,ele.time);
+  // bookedArray.map((ele) => console.log("RoomID", ele.time));
+  // bookedArray.map((ele) => console.log("Time", ele.time === timeSlot));
+
+  const boole = bookedArray.some(
     (booking) => booking.time === timeSlot && booking.room.id === roomId
   );
+  // console.log("Boolean value", boole);
+  return boole;
 };
 
 export const getBookedby = (date, time, bookedArray, setBookedby) => {

@@ -11,6 +11,7 @@ export default function RoomsLandingPage() {
   const { loading, error, data } = useQuery(RoomDetails);
   const [roomId, setRoomId] = useState();
   const [sortedRooms, setSortedRooms] = useState([]);
+  const [bookingsByRoom, setBookingsByRoom] = useState({});
 
   const [formState, setFormState] = useState({
     time: [],
@@ -23,26 +24,37 @@ export default function RoomsLandingPage() {
       setSortedRooms(data.rooms);
     }
   }, [data]);
-
   // useEffect(() => {
   //   if (data && data.rooms) {
-  //     const currentTime = new Date().toLocaleTimeString([], {
-  //       hour: "2-digit",
-  //     });
-  //     var curr = currentTime.split(" ")[0] + " 00 PM";
-  //     // console.log("Time", curr);
+  //     const currentTime = new Date();
+  //     const hour = currentTime.getHours();
+  //     const period = hour >= 12 ? "PM" : "AM";
+  //     const curr = `${hour % 12 || 12}:00 ${period}`;
+
   //     const sorted = [...data.rooms].sort((roomA, roomB) => {
-  //       const isRoomABookedNow = isTimeSlotBooked(curr, roomA.id, data.rooms);
-  //       const isRoomBBookedNow = isTimeSlotBooked(curr, roomB.id, data.rooms);
-  //       console.log("bookedArray", data.rooms);
-  //       console.log("Room A?", isRoomABookedNow, "Room B", isRoomBBookedNow);
+  //       const isRoomABookedNow = isTimeSlotBooked(
+  //         curr,
+  //         roomA.id,
+  //         bookingsByRoom[roomA.id]
+  //       );
+  //       const isRoomBBookedNow = isTimeSlotBooked(
+  //         curr,
+  //         roomB.id,
+  //         bookingsByRoom[roomB.id]
+  //       );
+  //       console.log(
+  //         `Checking: ${roomA.name}  at ${curr}(Booked: ${isRoomABookedNow}) vs ${roomB.name}  at ${curr} (Booked: ${isRoomBBookedNow})    `
+  //       );
+
   //       if (!isRoomABookedNow && isRoomBBookedNow) return -1;
   //       if (isRoomABookedNow && !isRoomBBookedNow) return 1;
-  //       return 0;
+
+  //       return roomA.id.localeCompare(roomB.id);
   //     });
+  //     console.log("Sorted List ", sorted);
   //     setSortedRooms(sorted);
   //   }
-  // }, [data]);
+  // }, [bookingsByRoom]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -94,6 +106,8 @@ export default function RoomsLandingPage() {
             setSortedRooms={setSortedRooms}
             formState={formState}
             setFormState={setFormState}
+            bookingsByRoom={bookingsByRoom}
+            setBookingsByRoom={setBookingsByRoom}
           />
         ))}
       </div>
